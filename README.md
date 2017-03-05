@@ -1,4 +1,4 @@
-Amazon Web Services Proof of Concept and prototypes
+Amazon Web Services Proof of Concept and Prototypes
 ===================================================
 
 This project has been motivated by a desire to test or examine the character of the AWS golang API, and in addition some of the features of AWS.
@@ -13,5 +13,6 @@ The tools within this project have an expectation that the AWS credentials will 
 Finally be sure to read the license which I intended to be permissive so that you can freely use the code.
 
 Have fun,
+<p>
 karlmutch@gmail.com
 
