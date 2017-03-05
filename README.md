@@ -35,7 +35,13 @@ The following make targets are available:
 
 When running the make logging with the code base can be controlled using the logxi environment variables described at https://github.com/mgutz/logxi.  For example running `LOGXI=*=INF make test-verbose` will show some limited summary output from the test run.
 
-Finally be sure to read the license which I intended to be permissive so that you can freely use the code.
+
+## License
+
+This example code is distributed under the
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0),
+see LICENSE.txt and NOTICE.txt for more information.
+
 
 Have fun,
 <p>
