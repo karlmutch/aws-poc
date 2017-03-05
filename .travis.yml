@@ -14,13 +14,9 @@ install:
   - go get github.com/Masterminds/glide
   - go get github.com/mattn/goveralls
   - go get github.com/modocache/gover
-  - glide install
 
 script:
-  - go test -coverprofile=aws-poc.coverprofile
-  - go test -coverprofile=login.coverprofile ./cmd/login
-  - gover
-  - goveralls -coverprofile=gover.coverprofile -service=travis-ci
+  - make
 
 matrix:
   allow_failures:
