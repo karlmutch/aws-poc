@@ -1,0 +1,27 @@
+language: go
+
+go:
+  - 1.7
+  - 1.8
+  - tip
+
+# Optimizes travis for performing builds using containers rather than VMs. This
+# # is much faster if it can be done within your projects
+sudo: false
+
+install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/Masterminds/glide
+  - go get github.com/mattn/goveralls
+  - go get github.com/modocache/gover
+  - glide install
+
+script:
+  - go test -coverprofile=aws-poc.coverprofile
+  - go test -coverprofile=login.coverprofile ./cmd/login
+  - gover
+  - goveralls -coverprofile=gover.coverprofile -service=travis-ci
+
+matrix:
+  allow_failures:
+    - go: tip

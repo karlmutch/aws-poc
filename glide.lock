@@ -1,0 +1,18 @@
+hash: 2198e24a4434debe39fb00971d99e4980ac41c01f00b88607e2dbafe60812e43
+updated: 2017-03-05T04:57:27.984032943Z
+imports:
+- name: github.com/mattn/go-colorable
+  version: acb9493f2794fd0f820de7a27a217dafbb1b65ea
+- name: github.com/mattn/go-isatty
+  version: 9622e0cc9d8f9be434ca605520ff9a16808fee47
+- name: github.com/mgutz/ansi
+  version: 9520e82c474b0a04dd04f8a40959027271bab992
+- name: github.com/mgutz/logxi
+  version: aebf8a7d67ab4625e0fd4a665766fef9a709161b
+  subpackages:
+  - v1
+- name: golang.org/x/sys
+  version: e48874b42435b4347fc52bdee0424a52abc974d7
+  subpackages:
+  - unix
+testImports: []
