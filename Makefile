@@ -1,5 +1,7 @@
 # This file was stolen from https://github.com/vincentbernat/hellogopher, Karl Mutch
 #
+# Documentation can be found at https://vincent.bernat.im/en/blog/2017-makefile-build-golang
+#
 PACKAGE  = aws-poc
 DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
@@ -14,7 +16,7 @@ GO      = go
 GODOC   = godoc
 GOFMT   = gofmt
 GLIDE   = glide
-TIMEOUT = 15
+TIMEOUT = 15s
 V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
@@ -63,7 +65,7 @@ test-race:    ARGS=-race         ## Run tests with race detector
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
 $(TEST_TARGETS): test
 check test tests: fmt lint vendor | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
-	$Q cd $(BASE) && $(GO) test -timeout $(TIMEOUT)s $(ARGS) $(TESTPKGS)
+	$Q cd $(BASE) && $(GO) test -timeout $(TIMEOUT) $(ARGS) $(TESTPKGS)
 
 test-xml: fmt lint vendor | $(BASE) $(GO2XUNIT) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests with xUnit output
 	$Q cd $(BASE) && 2>&1 $(GO) test -timeout 20s -v $(TESTPKGS) | tee test/tests.output
