@@ -5,8 +5,6 @@ import (
 	"os/user"
 	"testing"
 
-	"github.com/mgutz/logxi/v1"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
@@ -65,8 +63,7 @@ func TestBasicRDS(t *testing.T) {
 		BackupRetentionPeriod: aws.Int64(0),
 		MultiAZ:               aws.Bool(false),
 	}
-	resp, err := rds.New(sess).CreateDBInstance(params)
-	if err != nil {
+	if _, err = rds.New(sess).CreateDBInstance(params); err != nil {
 		msg := fmt.Sprintf("rds Postgres instance could not be created due to %s", err.Error())
 		log.Error(msg, "error", err)
 		t.Fatal(msg)
