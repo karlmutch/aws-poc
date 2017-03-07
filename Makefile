@@ -2,10 +2,11 @@
 #
 # Documentation can be found at https://vincent.bernat.im/en/blog/2017-makefile-build-golang
 #
-PACKAGE  = aws-poc
-DATE    ?= $(shell date +%FT%T%z)
+PACKAGE  = awstest
+DATE    ?= $(shell date '+%Y-%m-%d_%H:%M:%S%z')
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo v0)
+BRANCH  ?= $(shell git rev-parse --abbrev-ref HEAD)
 GOPATH   = $(CURDIR)/.gopath~
 BIN      = $(GOPATH)/bin
 BASE     = $(GOPATH)/src/$(PACKAGE)
@@ -16,7 +17,7 @@ GO      = go
 GODOC   = godoc
 GOFMT   = gofmt
 GLIDE   = glide
-TIMEOUT = 15s
+TIMEOUT = 60s
 V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
@@ -24,9 +25,9 @@ M = $(shell printf "\033[34;1m▶\033[0m")
 .PHONY: all
 all: fmt lint vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
 	$Q cd $(BASE) && $(GO) build \
-		-tags release \
-		-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildDate=$(DATE)' \
-		-o bin/$(PACKAGE) cmd/login/login.go
+			-tags release \
+			-ldflags '-X awstest.Version=$(VERSION) -X awstest.BuildTime=$(DATE) -X awstest.Branch=$(BRANCH)' \
+			-o bin/$(PACKAGE) cmd/scaled/main.go
 
 $(BASE): ; $(info $(M) setting GOPATH…)
 	@mkdir -p $(dir $@)

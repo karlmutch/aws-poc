@@ -1,5 +1,5 @@
-hash: 1cbbaee80cc0f0627f4208f0c6245eab5909f2a6bd536888442de2594a61518b
-updated: 2017-03-05T20:29:14.80437132Z
+hash: de12de4a537380174e5acc9ca57b3f85bf5f6067ae3c6713359f0ee16aeb5a30
+updated: 2017-03-06T18:54:22.896793432Z
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 78568b07950e5e7948496878fe99b9436add41d4
@@ -28,8 +28,11 @@ imports:
   - private/protocol/xml/xmlutil
   - private/waiter
   - service/ec2
+  - service/rds
   - service/sts
   - session
+- name: github.com/jackc/pgx
+  version: ea4b3ffb147b7e002d664d0154aebd374388d680
 - name: github.com/mattn/go-colorable
   version: acb9493f2794fd0f820de7a27a217dafbb1b65ea
 - name: github.com/mattn/go-isatty

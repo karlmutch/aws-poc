@@ -4,6 +4,9 @@ import:
   subpackages:
   - v1
 - package: github.com/aws/aws-sdk-go/aws
-  subpackages: 
+  subpackages:
   - session
 - package: github.com/aws/aws-sdk-go/service/ec2
+- package: github.com/aws/aws-sdk-go/service/rds
+
+- package: github.com/jackc/pgx

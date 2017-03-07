@@ -25,7 +25,7 @@ The following make targets are available:
  - `make test-race` for race tests
  - `make test-xml` for tests with xUnit-compatible output
  - `make test-coverage` for test coverage (will output `index.html`, `coverage.xml` and `profile.out` in `test/coverage.*/`.
- - `make test PKG=helloworld/hello` to restrict test to a package
+ - `make test PKG=awstest/test` to restrict test to a package
  - `make clean`
  - `make vendor` to retrieve dependencies
  - `make lint` to run golint
