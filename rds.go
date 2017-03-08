@@ -5,7 +5,8 @@ package awstest
 // at https://aws.amazon.com/rds/postgresql/
 //
 import (
-	"os/user"
+	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -25,27 +26,60 @@ import (
 // The cleanup function if used will destroy all resources associated with the
 // database if the applications wishes to do so once it completes its testing.
 //
-func CreateDB(ec2Type string, allocation int64, dbName string) (dbID string, cleanup func() (err error), err error) {
-	// use the users name as the AWS DB and resource associated user name so things look somewhat rational if
-	// an AWS admin wishes to ask about any left over resources from the test
-	osAccount, err := user.Current()
-	if err != nil {
-		osAccount = &user.User{Username: pseudoUUID()}
+func CreateDB(ec2Type string, allocation int64, userName string, password string) (dbID string, descr *rds.DBInstance, cleanup func(snapshot bool) (err error), err error) {
+
+	dbID = "DB-" + PseudoUUID()
+
+	if dbID, cleanup, err = createRDS(dbID, userName, password, ec2Type, allocation); err != nil {
+		return dbID, nil, cleanup, err
 	}
 
-	dbID = "DB-" + pseudoUUID()
-	password := pseudoUUID()
+	// Setup a session configuration that uses the environment variables
+	// typically used for AWS values
+	//
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 
-	return createRDS(dbID, osAccount.Username, password, ec2Type, allocation)
+	for {
+		descr, err := rds.New(sess).DescribeDBInstances(&rds.DescribeDBInstancesInput{
+			DBInstanceIdentifier: aws.String(dbID),
+			MaxRecords:           aws.Int64(20),
+		})
+		if err != nil {
+			return dbID, nil, cleanup, err
+		}
+
+		dbInst := &rds.DBInstance{}
+
+		for _, aDB := range descr.DBInstances {
+			if dbID == *aDB.DBInstanceIdentifier {
+				dbInst = aDB
+				break
+			}
+		}
+
+		if len(*dbInst.DBInstanceIdentifier) != 1 {
+			return dbID, nil, cleanup, fmt.Errorf("the AWS RDS Instance %s successfully began creation but could never be accessed", dbID)
+		}
+
+		if *dbInst.DBInstanceStatus != "creating" {
+			return dbID, dbInst, cleanup, err
+		}
+		select {
+		case <-time.After(3 * time.Second):
+		}
+	}
 }
 
 // createRDS is used internally to generate the RDS hosting for the postgres DB
 //
 // The cleanup function should be called if the caller wishes to destroy the DB
 //
-func createRDS(instanceID string, userName string, password string, ec2Type string, allocation int64) (rdsID string, cleanup func() (err error), err error) {
+func createRDS(instanceID string, userName string, password string, ec2Type string, allocation int64) (
+	rdsID string, cleanup func(snapshot bool) (err error), err error) {
 
-	cleanup = func() (err error) { return nil }
+	cleanup = func(snapshot bool) (err error) { return nil }
 
 	// Setup a session configuration that uses the environment variables
 	// typically used for AWS values
@@ -62,7 +96,7 @@ func createRDS(instanceID string, userName string, password string, ec2Type stri
 		return rdsID, cleanup, err
 	}
 
-	cleanup = func() (err error) {
+	cleanup = func(snapshot bool) (err error) {
 		// Setup a session configuration that uses the environment variables
 		// typically used for AWS values
 		//
@@ -77,6 +111,29 @@ func createRDS(instanceID string, userName string, password string, ec2Type stri
 			DBInstanceIdentifier: aws.String(instanceID),
 			SkipFinalSnapshot:    aws.Bool(true),
 		})
+
+		// Wait until AWS beings the deletion action which frees up us to remove the
+		// dependent security group
+		for {
+			descr, err := rds.New(sess).DescribeDBInstances(&rds.DescribeDBInstancesInput{
+				DBInstanceIdentifier: aws.String(instanceID),
+				MaxRecords:           aws.Int64(20),
+			})
+			if err != nil {
+				break
+			}
+
+			if len(descr.DBInstances) != 1 {
+				break
+			}
+
+			if *descr.DBInstances[0].DBInstanceStatus == "deleting" {
+				break
+			}
+			select {
+			case <-time.After(3 * time.Second):
+			}
+		}
 		delSecGrp(secID)
 		return err
 	}
@@ -101,9 +158,8 @@ func createRDS(instanceID string, userName string, password string, ec2Type stri
 		MultiAZ:               aws.Bool(false),
 	}
 
-	if _, err = rds.New(sess).CreateDBInstance(params); err != nil {
-		return rdsID, cleanup, err
-	}
+	_, err = rds.New(sess).CreateDBInstance(params)
 
-	return instanceID, cleanup, nil
+	// there is nothing we can sensibly do at this moment to log etc the error, have the caller do it
+	return rdsID, cleanup, err
 }

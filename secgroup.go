@@ -11,11 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-// puesdoUUID can be used to generate IDs that will be unique enough for testing using
+// PseudoUUID can be used to generate IDs that will be unique enough for testing using
 // place holder values that need to be unique for testing APIs that require values
 // for keys and names etc
 //
-func pseudoUUID() (uuid string) {
+func PseudoUUID() (uuid string) {
 
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
