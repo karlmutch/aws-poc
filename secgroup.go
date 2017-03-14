@@ -1,8 +1,8 @@
 package awstest
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
 
 	"github.com/mgutz/logxi/v1"
 
