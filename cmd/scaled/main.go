@@ -177,6 +177,7 @@ func main() {
 		os.Exit(-1)
 	}
 	rows.Close()
+
 	rows, err = pool.Query(fmt.Sprintf("GRANT ALL ON SCHEMA %s TO %s", *dbDatabase, *dbUser))
 	if err != nil {
 		log.Fatal(fmt.Sprintf("unable to grant access for the test schema %s due to %s", *dbDatabase, err.Error()), "error", err)
@@ -208,22 +209,25 @@ func main() {
 		}
 	}
 	rows.Close()
+
+	// If the needed table for testing the larger than 8K column is missing add it in prior to starting
+	// the test
+	//
 	if !dbOK {
-		log.Debug("creating table")
 		rows, err = pool.Query(fmt.Sprintf("create table %s ( id text primary key, payload bytea)", *dbTable))
 		if err != nil {
 			log.Fatal(fmt.Sprintf("unable to create the test table %s due to %s", *dbTable, err.Error()), "error", err)
 			os.Exit(-1)
 		}
+
 		rows.Close()
-		log.Debug("alter table")
 		rows, err = pool.Query(fmt.Sprintf("alter table %s set (storage = external), set with oids", *dbTable))
 		if err != nil {
 			log.Fatal(fmt.Sprintf("unable to set the storage for the test table %s due to %s", *dbTable, err.Error()), "error", err)
 			os.Exit(-1)
 		}
 		rows.Close()
-		log.Debug("alter table")
+
 		rows, err = pool.Query(fmt.Sprintf("alter table %s alter column payload set storage external", *dbTable))
 		if err != nil {
 			log.Fatal(fmt.Sprintf("unable to change column storage within the test table %s due to %s", *dbTable, err.Error()), "error", err)
@@ -235,7 +239,6 @@ func main() {
 	// Create a 40MB buffer with rolling data in it, if you want to simply exercise the API you can use anything
 	// above 8K to be larger than the default postgres page size
 	//
-	log.Debug("build buffer")
 	binBuffer := make([]byte, 1*1024*1024, 1*1024*1024)
 	for i := range binBuffer {
 		binBuffer[i] = byte(i & 0xFF)
